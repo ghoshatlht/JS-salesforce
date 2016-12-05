@@ -1,0 +1,70 @@
+<html>
+  <head>
+
+    <!-- 
+    jQuery - http://docs.jquery.com/Downloading_jQuery
+    -->
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.2.min.js"></script>
+    <!--
+    From jQuery-swip - http://code.google.com/p/jquery-swip/source/browse/trunk/jquery.popupWindow.js 
+    -->
+
+    <script type="text/javascript" src="forcetk.js"></script>
+    <script type="text/javascript">
+        
+        
+        
+        // OAuth Configuration
+        var loginUrl    = 'https://login.salesforce.com/';
+        var clientId    = '3MVG9HxRZv05HarSk68zg9ZtqjTB2KZnmU6DKrCHvbdCAmJilVTAFdf0Ynmuj1REWq6zLzwhc.tn9NRri_esw';
+        var redirectUri = 'http://localhost:8383/Force/oauthcallback.html';
+        var proxyUrl    = 'http://localhost:8383/Force/proxy.php?mode=native';
+
+        var client = new forcetk.Client(clientId, loginUrl, proxyUrl);
+        $(document).ready(function() {
+            window.open(getAuthorizeUrl(loginUrl, clientId, redirectUri));
+               
+        });
+
+        
+        
+        function getIP(json) {
+    document.write("My public IP address is: ", json.ip);
+  }
+
+        function getAuthorizeUrl(loginUrl, clientId, redirectUri){
+            return loginUrl+'services/oauth2/authorize?display=popup'
+                +'&response_type=token&client_id='+clientId
+                +'&redirect_uri='+redirectUri;
+        }
+
+        function sessionCallback(oauthResponse) {
+            if (typeof oauthResponse === 'undefined'
+                || typeof oauthResponse['access_token'] === 'undefined') {
+                $('#message').text('Error - unauthorized!');
+            } else {
+                client.setSessionToken(oauthResponse.access_token, null,
+                    oauthResponse.instance_url);
+
+                    client.query("SELECT Name FROM Account LIMIT 1", 
+                      function(response){
+                        $('#message').text('The first account I see is '
+                          +response.records[0].Name);
+                    });
+            }
+        }
+  </script>
+    <p id="message">Click here.</p>
+    <script type="application/javascript">
+  $(function() {
+    $.getJSON("https://api.ipify.org?format=jsonp&callback=?",
+      function(json) {
+        document.write("My public IP address is: ", json.ip);
+      }
+    );
+  });
+</script>
+
+        
+</html>
+
